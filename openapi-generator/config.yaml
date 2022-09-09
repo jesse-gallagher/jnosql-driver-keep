@@ -1,0 +1,10 @@
+additionalProperties:
+  library: microprofile
+  dateLibrary: java8
+  apiPackage: org.openntf.xsp.nosql.communication.driver.keep.client.api
+  invokerPackage: org.openntf.xsp.nosql.communication.driver.keep.client
+  modelPackage: org.openntf.xsp.nosql.communication.driver.keep.client.model
+  useBeanValidation: true
+  useRuntimeException: true
+  openApiNullable: false
+  microprofileRestClientVersion: "3.0"
