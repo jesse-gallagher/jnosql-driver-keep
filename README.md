@@ -28,7 +28,7 @@ To provide access to the contextual database, create a CDI bean that supplies `B
 ```java
 @RequestScoped
 public class ContextDatabaseSupplier {
-	@Inject
+  @Inject
   @ConfigProperty(name="keep.apiName")
   private String apiName;
   
@@ -39,7 +39,7 @@ public class ContextDatabaseSupplier {
   @Inject
   private OidcContextBean oidcContext;
 	
-	@Produces
+  @Produces
   public BaseUriSupplier getBaseUri() {
     return () -> baseUri;
   }
