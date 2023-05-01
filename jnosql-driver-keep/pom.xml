@@ -160,12 +160,12 @@
 					<header>license.txt</header>
 					<excludes>
 						<exclude>**/pom.xml</exclude>
-			            <exclude>src/test/resources/**</exclude>
-			            <exclude>src/main/resources/**</exclude>
+			      <exclude>src/test/resources/**</exclude>
+			      <exclude>src/main/resources/**</exclude>
 					</excludes>
 					<properties>
 						<owner>Jesse Gallagher</owner>
-						<copyrightYear>2022</copyrightYear>
+						<copyrightYear>2023</copyrightYear>
 					</properties>
 				</configuration>
 			</plugin>
