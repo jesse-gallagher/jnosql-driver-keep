@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,7 +45,6 @@ import jakarta.nosql.SortType;
 import jakarta.nosql.document.DocumentDeleteQuery;
 import jakarta.nosql.document.DocumentEntity;
 import jakarta.nosql.document.DocumentQuery;
-import jakarta.nosql.mapping.Column;
 import jakarta.nosql.mapping.Pagination;
 import jakarta.nosql.mapping.Sorts;
 import jakarta.ws.rs.ProcessingException;
@@ -111,10 +109,14 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
               start,
               key,
               null,
+              false,
+              null,
               sortColumn,
               direction,
               null,
-              "default");
+              RichTextRepresentation.HTML,
+              "default",
+              null);
       Stream<DocumentEntity> result = entityConverter.convertDocuments(entityName, entries, mapping);
       if(singleResult) {
         result = result.limit(1);
@@ -149,7 +151,7 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
     try {
       Map<String, Object> doc = entityConverter.convertNoSQLEntity(entity, true, mapping);
       doc.remove("@meta");
-      doc = api.createDocument(dataSourceSupplier.get(), doc, null);
+      doc = api.createDocument(dataSourceSupplier.get(), doc, RichTextRepresentation.HTML, null);
       @SuppressWarnings("unchecked")
       Map<String, Object> meta = (Map<String, Object>) doc.get("@meta");
       entity.add(jakarta.nosql.document.Document.of(DominoConstants.FIELD_ID, meta.get("unid")));
@@ -184,7 +186,7 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
     DataApi api = getDataApi();
     try {
       Map<String, Object> doc = api.getDocument(unid, dataSourceSupplier.get(), "default", //$NON-NLS-1$
-          RichTextRepresentation.HTML, false);
+          false, null, RichTextRepresentation.HTML);
       return doc != null;
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -202,7 +204,7 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
     DataApi api = getDataApi();
     try {
       Map<String, Object> doc = api.getDocument(id, dataSourceSupplier.get(), "default", //$NON-NLS-1$
-          RichTextRepresentation.HTML, false);
+          false, null, RichTextRepresentation.HTML);
       return entityConverter.convertDocuments(entityName, Arrays.asList(doc), mapping)
           .findFirst();
     } catch (Exception e) {
@@ -324,21 +326,6 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
   @Override
   public void close() {
 
-  }
-
-  private List<String> getItemNames(ClassMapping mapping) {
-    return mapping.getFields()
-        .stream()
-        .map(f -> f.getNativeField())
-        .map(f -> {
-          Column col = f.getAnnotation(Column.class);
-          if (col == null) {
-            return null;
-          }
-          return col.value().isEmpty() ? f.getName() : col.value();
-        })
-        .filter(Objects::nonNull)
-        .collect(Collectors.toList());
   }
 
   private DataApi getDataApi() {

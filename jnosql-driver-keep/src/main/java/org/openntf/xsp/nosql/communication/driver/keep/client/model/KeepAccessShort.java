@@ -12,17 +12,15 @@
 
 package org.openntf.xsp.nosql.communication.driver.keep.client.model;
 
-import java.util.List;
 import jakarta.json.bind.annotation.JsonbProperty;
-import jakarta.validation.constraints.NotNull;
 
 /**
- * Provides information of access level required for Domino REST API operations: - Domino REST API
- * mapping in Domino directory - Domino REST API configuration in individual databases Masks ACL and
- * Role checks for users of the API
+ * Provides simple information of access level required for Domino REST API access get operations: -
+ * Domino REST API mapping in Domino directory - Domino REST API configuration in individual
+ * databases Masks ACL and Role checks for users of the API
  **/
 
-public class KeepAccess {
+public class KeepAccessShort {
 
   /**
    * Can the current user create Domino REST API configuration mappings
@@ -37,17 +35,10 @@ public class KeepAccess {
   private Boolean deleteDbMapping;
 
   /**
-   * Details of access to a given database
-   **/
-  @JsonbProperty("databases")
-  private List<KeepAccessDetail> databases = null;
-
-  /**
    * Can the current user create Domino REST API configuration mappings
    * 
    * @return createDbMapping
    **/
-  @NotNull
   public Boolean getCreateDbMapping() {
     return createDbMapping;
   }
@@ -59,7 +50,7 @@ public class KeepAccess {
     this.createDbMapping = createDbMapping;
   }
 
-  public KeepAccess createDbMapping(Boolean createDbMapping) {
+  public KeepAccessShort createDbMapping(Boolean createDbMapping) {
     this.createDbMapping = createDbMapping;
     return this;
   }
@@ -69,7 +60,6 @@ public class KeepAccess {
    * 
    * @return deleteDbMapping
    **/
-  @NotNull
   public Boolean getDeleteDbMapping() {
     return deleteDbMapping;
   }
@@ -81,34 +71,8 @@ public class KeepAccess {
     this.deleteDbMapping = deleteDbMapping;
   }
 
-  public KeepAccess deleteDbMapping(Boolean deleteDbMapping) {
+  public KeepAccessShort deleteDbMapping(Boolean deleteDbMapping) {
     this.deleteDbMapping = deleteDbMapping;
-    return this;
-  }
-
-  /**
-   * Details of access to a given database
-   * 
-   * @return databases
-   **/
-  public List<KeepAccessDetail> getDatabases() {
-    return databases;
-  }
-
-  /**
-   * Set databases
-   **/
-  public void setDatabases(List<KeepAccessDetail> databases) {
-    this.databases = databases;
-  }
-
-  public KeepAccess databases(List<KeepAccessDetail> databases) {
-    this.databases = databases;
-    return this;
-  }
-
-  public KeepAccess addDatabasesItem(KeepAccessDetail databasesItem) {
-    this.databases.add(databasesItem);
     return this;
   }
 
@@ -119,11 +83,10 @@ public class KeepAccess {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class KeepAccess {\n");
+    sb.append("class KeepAccessShort {\n");
 
     sb.append("    createDbMapping: ").append(toIndentedString(createDbMapping)).append("\n");
     sb.append("    deleteDbMapping: ").append(toIndentedString(deleteDbMapping)).append("\n");
-    sb.append("    databases: ").append(toIndentedString(databases)).append("\n");
     sb.append("}");
     return sb.toString();
   }

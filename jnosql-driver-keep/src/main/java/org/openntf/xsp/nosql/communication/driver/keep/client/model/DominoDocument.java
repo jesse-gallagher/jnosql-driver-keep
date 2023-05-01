@@ -14,25 +14,51 @@ package org.openntf.xsp.nosql.communication.driver.keep.client.model;
 
 import java.util.HashMap;
 import jakarta.json.bind.annotation.JsonbProperty;
+import jakarta.validation.constraints.NotNull;
 
 /**
- * This is a sample Json format request body to create a domino document. The fields properties are
- * just examples for one testform.
+ * The JSON representation of a Domino document consisting of attributes (starting with @) and
+ * NotesItem having a name and one or more values
  **/
 
-public class DocumentSimpleRequest extends HashMap<String, Object> {
+public class DominoDocument extends HashMap<String, Object> {
+
+  @JsonbProperty("@meta")
+  private DocumentMeta atMeta;
 
   /**
-   * The form name you want to operate with.
+   * Form of a document, used to determine additionalProperties in detail
    **/
   @JsonbProperty("Form")
   private String form;
 
   /**
-   * The form name you want to operate with.
+   * Get atMeta
+   * 
+   * @return atMeta
+   **/
+  public DocumentMeta getAtMeta() {
+    return atMeta;
+  }
+
+  /**
+   * Set atMeta
+   **/
+  public void setAtMeta(DocumentMeta atMeta) {
+    this.atMeta = atMeta;
+  }
+
+  public DominoDocument atMeta(DocumentMeta atMeta) {
+    this.atMeta = atMeta;
+    return this;
+  }
+
+  /**
+   * Form of a document, used to determine additionalProperties in detail
    * 
    * @return form
    **/
+  @NotNull
   public String getForm() {
     return form;
   }
@@ -44,7 +70,7 @@ public class DocumentSimpleRequest extends HashMap<String, Object> {
     this.form = form;
   }
 
-  public DocumentSimpleRequest form(String form) {
+  public DominoDocument form(String form) {
     this.form = form;
     return this;
   }
@@ -56,8 +82,9 @@ public class DocumentSimpleRequest extends HashMap<String, Object> {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class DocumentSimpleRequest {\n");
+    sb.append("class DominoDocument {\n");
     sb.append("    ").append(toIndentedString(super.toString())).append("\n");
+    sb.append("    atMeta: ").append(toIndentedString(atMeta)).append("\n");
     sb.append("    form: ").append(toIndentedString(form)).append("\n");
     sb.append("}");
     return sb.toString();

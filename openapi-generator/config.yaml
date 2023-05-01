@@ -8,3 +8,4 @@ additionalProperties:
   useRuntimeException: true
   openApiNullable: false
   microprofileRestClientVersion: "3.0"
+  useJakartaEe: true

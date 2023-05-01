@@ -6,7 +6,7 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 
 rm -rf out
 
-openapi-generator generate -g java -i openapi.core.json -o out -c config.yaml --skip-validate-spec
+openapi-generator generate -g java -i openapi.basis.json -o out -c config.yaml --skip-validate-spec
 
 rm -rf ../jnosql-driver-keep/src/main/java/org/openntf/xsp/nosql/communication/driver/keep/client || true
 
