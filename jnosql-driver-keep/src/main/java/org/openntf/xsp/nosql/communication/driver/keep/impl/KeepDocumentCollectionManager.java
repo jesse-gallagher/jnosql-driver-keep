@@ -17,9 +17,12 @@ package org.openntf.xsp.nosql.communication.driver.keep.impl;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -66,72 +69,20 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
     this.entityConverter = new KeepEntityConverter();
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName,
       Pagination pagination, Sorts sorts,
       int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult) {
-    DataApi dataApi = getDataApi();
-
-    ClassMapping mapping = EntityUtil.getClassMapping(entityName);
-    try {
-      int start = 0;
-      int count = Integer.MAX_VALUE;
-      if(pagination != null) {
-        start = (int)Math.min(Integer.MAX_VALUE, pagination.getSkip());
-        count = (int)Math.min(Integer.MAX_VALUE, pagination.getPageSize());
-      }
-      
-      // TODO add keyAllowPartial
-      String key = null;
-      if(viewQuery != null) {
-        if(viewQuery.getKey() != null) {
-          key = String.valueOf(viewQuery.getKey());
-        }
-      }
-      
-      String sortColumn = null;
-      String direction = null;
-      if(sorts != null) {
-        List<Sort> sortList = sorts.getSorts();
-        if(sortList != null && !sortList.isEmpty()) {
-          sortColumn = sortList.get(0).getName();
-          direction = sortList.get(0).getType() == SortType.ASC ? "asc" : "desc";
-        }
-      }
-      
-      List<Map<String, Object>> entries =
-          (List<Map<String, Object>>) (List<?>) dataApi.fetchViewEntries(
-              viewName,
-              this.dataSourceSupplier.get(),
-              count,
-              docsOnly ? "documents": "all",
-              start,
-              key,
-              null,
-              false,
-              null,
-              sortColumn,
-              direction,
-              null,
-              RichTextRepresentation.HTML,
-              "default",
-              null);
-      Stream<DocumentEntity> result = entityConverter.convertDocuments(entityName, entries, mapping);
-      if(singleResult) {
-        result = result.limit(1);
-      }
-      return result;
-    } catch (ProcessingException | ApiException e) {
-      throw new RuntimeException(e);
-    }
+    return viewQuery(entityName, viewName, pagination, sorts, maxLevel, docsOnly, viewQuery, singleResult, false);
   }
   
   @Override
   public Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName,
       Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult,
       boolean distinct) {
-    throw new UnsupportedOperationException();
+    return viewQuery(entityName, viewName, pagination, sorts, maxLevel, true, viewQuery, singleResult, true)
+        // TODO remove filter when this can be done in Keep
+        .filter(distinctByUnid());
   }
 
   @Override
@@ -147,14 +98,12 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
   @Override
   public DocumentEntity insert(DocumentEntity entity, boolean computeWithForm) {
     ClassMapping mapping = EntityUtil.getClassMapping(entity.getName());
-    DataApi api = getDataApi();
-    try {
+    try(DataApi api = getDataApi()) {
       Map<String, Object> doc = entityConverter.convertNoSQLEntity(entity, true, mapping);
       doc.remove("@meta");
       doc = api.createDocument(dataSourceSupplier.get(), doc, RichTextRepresentation.HTML, null);
-      @SuppressWarnings("unchecked")
-      Map<String, Object> meta = (Map<String, Object>) doc.get("@meta");
-      entity.add(jakarta.nosql.document.Document.of(DominoConstants.FIELD_ID, meta.get("unid")));
+      String id = entityConverter.getUnid(doc);
+      entity.add(jakarta.nosql.document.Document.of(DominoConstants.FIELD_ID, id));
       return entity;
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -169,8 +118,7 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
       return insert(entity, computeWithForm);
     } else {
       ClassMapping mapping = EntityUtil.getClassMapping(entity.getName());
-      DataApi api = getDataApi();
-      try {
+      try(DataApi api = getDataApi()) {
         Map<String, Object> doc = entityConverter.convertNoSQLEntity(entity, true, mapping);
         api.updateDocument(dataSourceSupplier.get(), maybeId.get().get(String.class), doc,
             "default", RichTextRepresentation.HTML, null, null);
@@ -183,8 +131,7 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
 
   @Override
   public boolean existsById(String unid) {
-    DataApi api = getDataApi();
-    try {
+    try(DataApi api = getDataApi()) {
       Map<String, Object> doc = api.getDocument(unid, dataSourceSupplier.get(), "default", //$NON-NLS-1$
           false, null, RichTextRepresentation.HTML);
       return doc != null;
@@ -201,8 +148,7 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
   @Override
   public Optional<DocumentEntity> getById(String entityName, String id) {
     ClassMapping mapping = EntityUtil.getClassMapping(entityName);
-    DataApi api = getDataApi();
-    try {
+    try(DataApi api = getDataApi()) {
       Map<String, Object> doc = api.getDocument(id, dataSourceSupplier.get(), "default", //$NON-NLS-1$
           false, null, RichTextRepresentation.HTML);
       return entityConverter.convertDocuments(entityName, Arrays.asList(doc), mapping)
@@ -222,8 +168,7 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
   @SuppressWarnings("unchecked")
   @Override
   public void delete(DocumentDeleteQuery query) {
-    try {
-      DataApi api = getDataApi();
+    try(DataApi api = getDataApi()) {
       Collection<String> unids = query.getDocuments();
       if (unids != null) {
         unids = unids.stream()
@@ -283,12 +228,11 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
     @SuppressWarnings("unused")
     List<Sort> sorts = query.getSorts();
 
-    DataApi api = getDataApi();
     QueryRequest req = new QueryRequest();
     req.setForms(Arrays.asList(entityName));
     req.setQuery(queryResult.getStatement().toString());
     req.setMode("dql");
-    try {
+    try(DataApi api = getDataApi()) {
       List<Map<String, Object>> docs = api.query(
           dataSourceSupplier.get(),
           "execute", //$NON-NLS-1$
@@ -305,11 +249,10 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
   @Override
   public long count(String documentCollection) {
     DQLTerm dql = DQL.item(DominoConstants.FIELD_NAME).isEqualTo(documentCollection);
-    DataApi api = getDataApi();
     QueryRequest req = new QueryRequest();
     req.setForms(Arrays.asList(documentCollection));
     req.setQuery(dql.toString());
-    try {
+    try(DataApi api = getDataApi()) {
       return api.query(
           dataSourceSupplier.get(),
           "execute", //$NON-NLS-1$
@@ -335,5 +278,72 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
           ctx.getHeaders().add(HttpHeaders.AUTHORIZATION, "Bearer " + tokenSupplier.get()); //$NON-NLS-1$
         })
         .build(DataApi.class);
+  }
+  
+  private Predicate<DocumentEntity> distinctByUnid() {
+    final Set<Object> seen = new HashSet<>();
+    return t -> seen.add(t.find(DominoConstants.FIELD_ID).get().get());
+  }
+  
+  @SuppressWarnings("unchecked")
+  private Stream<DocumentEntity> viewQuery(String entityName, String viewName,
+      Pagination pagination, Sorts sorts,
+      int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult,
+      boolean documents) {
+    DataApi dataApi = getDataApi();
+
+    ClassMapping mapping = EntityUtil.getClassMapping(entityName);
+    try {
+      int start = 0;
+      int count = Integer.MAX_VALUE;
+      if(pagination != null) {
+        start = (int)Math.min(Integer.MAX_VALUE, pagination.getSkip());
+        count = (int)Math.min(Integer.MAX_VALUE, pagination.getPageSize());
+      }
+      
+      String key = null;
+      Boolean keyAllowPartial = null;
+      if(viewQuery != null) {
+        if(viewQuery.getKey() != null) {
+          key = String.valueOf(viewQuery.getKey());
+          keyAllowPartial = !viewQuery.isExact();
+        }
+      }
+      
+      String sortColumn = null;
+      String direction = null;
+      if(sorts != null) {
+        List<Sort> sortList = sorts.getSorts();
+        if(sortList != null && !sortList.isEmpty()) {
+          sortColumn = sortList.get(0).getName();
+          direction = sortList.get(0).getType() == SortType.ASC ? "asc" : "desc";
+        }
+      }
+      
+      List<Map<String, Object>> entries =
+          (List<Map<String, Object>>) (List<?>) dataApi.fetchViewEntries(
+              viewName,
+              this.dataSourceSupplier.get(),
+              count,
+              docsOnly ? "documents": "all",
+              start,
+              key,
+              keyAllowPartial,
+              documents,
+              null,
+              sortColumn,
+              direction,
+              null,
+              RichTextRepresentation.HTML,
+              "default",
+              null);
+      Stream<DocumentEntity> result = entityConverter.convertDocuments(entityName, entries, mapping);
+      if(singleResult) {
+        result = result.limit(1);
+      }
+      return result;
+    } catch (ProcessingException | ApiException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

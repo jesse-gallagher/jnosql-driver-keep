@@ -65,7 +65,7 @@ import jakarta.ws.rs.QueryParam;
 @RegisterRestClient
 @RegisterProvider(ApiExceptionMapper.class)
 @Path("")
-public interface DataApi {
+public interface DataApi extends AutoCloseable {
 
   /**
    * Create multiple documents in a single call
@@ -377,4 +377,7 @@ public interface DataApi {
   public DominoDocument updateDocumentRaw(@QueryParam("dataSource") @NotNull String dataSource,
       @PathParam("unid") String unid, @Valid Object body,
       @QueryParam("parentUnid") String parentUnid) throws ApiException, ProcessingException;
+  
+  @Override
+  void close();
 }

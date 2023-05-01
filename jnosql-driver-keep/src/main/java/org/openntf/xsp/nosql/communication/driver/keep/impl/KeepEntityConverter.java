@@ -55,14 +55,7 @@ public class KeepEntityConverter extends AbstractEntityConverter {
       ClassMapping classMapping) {
     return docs.stream()
         .map(doc -> {
-          Map<String, Object> meta = (Map<String, Object>) doc.get("@meta"); //$NON-NLS-1$
-          String id;
-          if (meta != null) {
-            id = (String) meta.get("unid"); //$NON-NLS-1$
-          } else {
-            // View entries
-            id = (String) doc.get("@unid");
-          }
+          String id = getUnid(doc);
 
           List<jakarta.nosql.document.Document> resultDocs = new ArrayList<>();
           resultDocs.add(jakarta.nosql.document.Document.of(DominoConstants.FIELD_ID, id));
@@ -175,5 +168,17 @@ public class KeepEntityConverter extends AbstractEntityConverter {
 
     items.put(DominoConstants.FIELD_NAME, entity.getName());
     return items;
+  }
+  
+  @SuppressWarnings("unchecked")
+  public String getUnid(Map<String, Object> doc) {
+    if(doc.containsKey("@unid")) {
+      return (String)doc.get("@unid");
+    } else if(doc.containsKey("@meta")) {
+      Map<String, Object> meta = (Map<String, Object>) doc.get("@meta"); //$NON-NLS-1$
+      return (String)meta.get("unid");
+    } else {
+      return null;
+    }
   }
 }
