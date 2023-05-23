@@ -15,20 +15,21 @@
  */
 package org.openntf.xsp.nosql.communication.driver.keep.impl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
+import org.openntf.xsp.nosql.communication.driver.ViewColumnInfo;
+import org.openntf.xsp.nosql.communication.driver.ViewColumnInfo.SortOrder;
 import org.openntf.xsp.nosql.communication.driver.ViewInfo;
 import org.openntf.xsp.nosql.communication.driver.impl.AbstractDominoDocumentCollectionManager;
 import org.openntf.xsp.nosql.communication.driver.impl.DQL;
@@ -36,6 +37,8 @@ import org.openntf.xsp.nosql.communication.driver.impl.DQL.DQLTerm;
 import org.openntf.xsp.nosql.communication.driver.impl.EntityUtil;
 import org.openntf.xsp.nosql.communication.driver.impl.QueryConverter;
 import org.openntf.xsp.nosql.communication.driver.impl.QueryConverter.QueryConverterResult;
+import org.openntf.xsp.nosql.communication.driver.impl.ViewColumnInfoImpl;
+import org.openntf.xsp.nosql.communication.driver.impl.ViewInfoImpl;
 import org.openntf.xsp.nosql.communication.driver.keep.AccessTokenSupplier;
 import org.openntf.xsp.nosql.communication.driver.keep.BaseUriSupplier;
 import org.openntf.xsp.nosql.communication.driver.keep.DataSourceSupplier;
@@ -266,6 +269,47 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
   }
 
   @Override
+  public Stream<ViewInfo> getViewInfo() {
+    try (DataApi dataApi = getDataApi()) {
+      return dataApi.fetchViews(dataSourceSupplier.get(), "all", true) //$NON-NLS-1$
+        .stream()
+        .map(list -> {
+          ViewInfo.Type type = Boolean.TRUE.equals(list.getIsFolder()) ? ViewInfo.Type.FOLDER : ViewInfo.Type.VIEW;
+          String title = list.getTitle();
+          List<String> aliases = new ArrayList<>(list.getAliases());
+          aliases.remove(title);
+          String unid = list.getUnid();
+          String selectionFormula = ""; //$NON-NLS-1$
+          List<ViewColumnInfo> columns = list.getColumns()
+              .stream()
+              .map(col -> {
+                String colTitle = col.getTitle();
+                String programmaticName = col.getName();
+                SortOrder sortOrder;
+                if(Boolean.TRUE.equals(col.getSorted())) {
+                  sortOrder = "descending".equals(col.getDirection()) ? SortOrder.DESCENDING : SortOrder.ASCENDING;
+                } else {
+                  sortOrder = SortOrder.NONE;
+                }
+                Collection<SortOrder> resortOrders = EnumSet.noneOf(SortOrder.class);
+                if(Boolean.TRUE.equals(col.getResortAsc())) {
+                  resortOrders.add(SortOrder.ASCENDING);
+                }
+                if(Boolean.TRUE.equals(col.getResortDesc())) {
+                  resortOrders.add(SortOrder.DESCENDING);
+                }
+                boolean categorized = Boolean.TRUE.equals(col.getCategorized());
+                return new ViewColumnInfoImpl(colTitle, programmaticName, sortOrder, resortOrders, categorized);
+              })
+              .collect(Collectors.toList());
+          return new ViewInfoImpl(type, title, aliases, unid, selectionFormula, columns);
+        });
+    } catch (ProcessingException | ApiException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
   public void close() {
 
   }
@@ -341,9 +385,4 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
       throw new RuntimeException(e);
     }
   }
-
-	@Override
-	public Stream<ViewInfo> getViewInfo() {
-		throw new UnsupportedOperationException();
-	}
 }

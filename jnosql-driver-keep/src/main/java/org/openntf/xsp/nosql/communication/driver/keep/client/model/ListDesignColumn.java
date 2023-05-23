@@ -32,8 +32,8 @@ public class ListDesignColumn  {
   @JsonbProperty("sorted")
   private Boolean sorted;
 
-  @JsonbProperty("directory")
-  private String directory;
+  @JsonbProperty("direction")
+  private String direction;
 
   @JsonbProperty("categorized")
   private Boolean categorized;
@@ -128,19 +128,19 @@ public class ListDesignColumn  {
    * Get directory
    * @return directory
   **/
-  public String getDirectory() {
-    return directory;
+  public String getDirection() {
+    return direction;
   }
 
   /**
     * Set directory
   **/
-  public void setDirectory(String directory) {
-    this.directory = directory;
+  public void setDirection(String direction) {
+    this.direction = direction;
   }
 
-  public ListDesignColumn directory(String directory) {
-    this.directory = directory;
+  public ListDesignColumn direction(String direction) {
+    this.direction = direction;
     return this;
   }
 
@@ -217,7 +217,7 @@ public class ListDesignColumn  {
     sb.append("    title: ").append(toIndentedString(title)).append("\n");
     sb.append("    position: ").append(toIndentedString(position)).append("\n");
     sb.append("    sorted: ").append(toIndentedString(sorted)).append("\n");
-    sb.append("    directory: ").append(toIndentedString(directory)).append("\n");
+    sb.append("    directory: ").append(toIndentedString(direction)).append("\n");
     sb.append("    categorized: ").append(toIndentedString(categorized)).append("\n");
     sb.append("    resortAsc: ").append(toIndentedString(resortAsc)).append("\n");
     sb.append("    resortDesc: ").append(toIndentedString(resortDesc)).append("\n");
