@@ -29,6 +29,7 @@ import java.util.stream.StreamSupport;
 import org.eclipse.jnosql.mapping.reflection.ClassMapping;
 import org.eclipse.microprofile.rest.client.RestClientBuilder;
 import org.openntf.xsp.nosql.communication.driver.DominoConstants;
+import org.openntf.xsp.nosql.communication.driver.ViewInfo;
 import org.openntf.xsp.nosql.communication.driver.impl.AbstractDominoDocumentCollectionManager;
 import org.openntf.xsp.nosql.communication.driver.impl.DQL;
 import org.openntf.xsp.nosql.communication.driver.impl.DQL.DQLTerm;
@@ -73,16 +74,14 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
   public Stream<DocumentEntity> viewEntryQuery(String entityName, String viewName,
       Pagination pagination, Sorts sorts,
       int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult) {
-    return viewQuery(entityName, viewName, pagination, sorts, maxLevel, docsOnly, viewQuery, singleResult, false);
+    return viewQuery(entityName, viewName, pagination, sorts, maxLevel, docsOnly, viewQuery, singleResult, false, false);
   }
   
   @Override
   public Stream<DocumentEntity> viewDocumentQuery(String entityName, String viewName,
       Pagination pagination, Sorts sorts, int maxLevel, ViewQuery viewQuery, boolean singleResult,
       boolean distinct) {
-    return viewQuery(entityName, viewName, pagination, sorts, maxLevel, true, viewQuery, singleResult, true)
-        // TODO remove filter when this can be done in Keep
-        .filter(distinctByUnid());
+    return viewQuery(entityName, viewName, pagination, sorts, maxLevel, true, viewQuery, singleResult, true, distinct);
   }
 
   @Override
@@ -289,7 +288,7 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
   private Stream<DocumentEntity> viewQuery(String entityName, String viewName,
       Pagination pagination, Sorts sorts,
       int maxLevel, boolean docsOnly, ViewQuery viewQuery, boolean singleResult,
-      boolean documents) {
+      boolean documents, boolean distinctDocuments) {
     DataApi dataApi = getDataApi();
 
     ClassMapping mapping = EntityUtil.getClassMapping(entityName);
@@ -335,6 +334,7 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
               direction,
               null,
               RichTextRepresentation.HTML,
+              distinctDocuments,
               "default",
               null);
       Stream<DocumentEntity> result = entityConverter.convertDocuments(entityName, entries, mapping);
@@ -346,4 +346,9 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
       throw new RuntimeException(e);
     }
   }
+
+	@Override
+	public Stream<ViewInfo> getViewInfo() {
+		throw new UnsupportedOperationException();
+	}
 }

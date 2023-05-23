@@ -2,7 +2,7 @@
     "openapi": "3.0.2",
     "info": {
         "title": "HCL Domino REST API basis",
-        "version": "1.0.8",
+        "version": "1.0.10",
         "description": "REST APIs for Domino and more done right. With declarative security and access to Code, Design and Data",
         "contact": {
             "name": "HCL America Inc",
@@ -5959,39 +5959,6 @@
                 }
             ]
         },
-        "/apps": {
-            "summary": "Short list of OAuth applications",
-            "description": "Only title, description, icon, URL to be shown to be able to render the Domino REST API landing page ",
-            "get": {
-                "tags": [
-                    "admin"
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/AppInfo"
-                                    }
-                                }
-                            }
-                        },
-                        "description": "List of active apps"
-                    }
-                },
-                "security": [
-                    {
-
-                    }
-                ],
-                "operationId": "fetchApps",
-                "summary": "Get the list of configured OAuth applications",
-                "description": "Return Title, Id, Description, URL of active OAuth applications",
-                "x-keep-version": 1
-            }
-        },
         "/odata/{dataSource}/{name}": {
             "summary": "Retrieve ODATA service Document",
             "description": "JSON Structure describing what a database can do",
@@ -6316,459 +6283,6 @@
                         "type": "string"
                     },
                     "in": "header"
-                }
-            ]
-        },
-        "/document/{unid}": {
-            "summary": "Actions on a document at a specific mode",
-            "description": "Update access to a document will typically restrict which fields on the document can be changed.\n\nModes are used to define statuses for a document, and will a definition identifying which fields can be seen and changed. A patch request that includes fields outside those restrictions will throw a 400 error (bad request), specifying which fields are illegal or missing.",
-            "get": {
-                "tags": [
-                    "data"
-                ],
-                "parameters": [
-                    {
-                        "examples": {
-                            "CustomApp": {
-                                "value": "customcontacts"
-                            },
-                            "Directory": {
-                                "value": "dominodirectory"
-                            }
-                        },
-                        "name": "dataSource",
-                        "description": "Scope name",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "examples": {
-                            "compute": {
-                                "value": "true"
-                            }
-                        },
-                        "name": "computeWithForm",
-                        "description": "Should a document be computed with its form's \"Default Value\", \"Input Translation\" and \"Input Validation\" formulas before retrieval",
-                        "schema": {
-                            "type": "boolean"
-                        },
-                        "in": "query"
-                    },
-                    {
-                        "name": "meta",
-                        "description": "When set to false, all metadata Json items on the top level of an object get suppressed.\nDefault is true",
-                        "schema": {
-                            "type": "boolean"
-                        },
-                        "in": "query"
-                    },
-                    {
-                        "examples": {
-                            "RichTextAsMime": {
-                                "value": "mime"
-                            }
-                        },
-                        "name": "richTextAs",
-                        "description": "The format RichText fields will be returned.  The default if unspecified is html.",
-                        "schema": {
-                            "$ref": "#/components/schemas/RichTextRepresentation"
-                        },
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/DominoDocument"
-                                },
-                                "examples": {
-                                    "document": {
-                                        "value": {
-                                            "@meta": {
-                                                "noteid": 44026,
-                                                "unid": "1C62D55D75387684482588DA001F4428",
-                                                "created": "2022-10-13T13:41:30.64+08:00",
-                                                "lastmodified": "2022-10-13T13:41:30.68+08:00",
-                                                "lastaccessed": "2022-10-13T13:41:30.68+08:00",
-                                                "lastmodifiedinfile": "2022-10-13T13:41:30.69+08:00",
-                                                "addedtofile": "2022-10-13T13:41:30.68+08:00",
-                                                "noteclass": [
-                                                    "DATA",
-                                                    "DOCUMENT"
-                                                ],
-                                                "unread": true,
-                                                "revision": "00000001001F442C482588DA",
-                                                "size": 570
-                                            },
-                                            "Form": "Customer",
-                                            "Color": "Red",
-                                            "email": "gbranthwaite0@nba.com",
-                                            "first_name": "George",
-                                            "gender": "Male",
-                                            "ip_address": "91.254.204.27",
-                                            "last_name": "Branthwaite",
-                                            "Pet": "Black-capped chickadee"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Successful retrieval"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequest"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403Forbidden"
-                    },
-                    "406": {
-                        "$ref": "#/components/responses/406NotAcceptable"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500InternalServerError"
-                    }
-                },
-                "security": [
-                    {
-                        "jwt": [
-                        ]
-                    }
-                ],
-                "operationId": "getDocument",
-                "summary": "Retrieve a given document at its appropriate mode",
-                "description": "Retrieve a given document at its appropriate mode",
-                "x-keep-version": 1
-            },
-            "put": {
-                "requestBody": {
-                    "description": "Key/value pairs of fields and their values to update. Some modes may not allow any editable fields, in which case an empty JSON object should be passed. 'Form' is required.",
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/DocumentSimpleRequest"
-                            },
-                            "examples": {
-                                "UpdateDocument": {
-                                    "value": {
-                                        "first_name": "Madison",
-                                        "last_name": "Branthwaite",
-                                        "email": "mbranthwaite0@nba.com",
-                                        "gender": "Female",
-                                        "ip_address": "91.254.204.27",
-                                        "Color": "Puce",
-                                        "Pet": "Black-capped chickadee",
-                                        "Form": "TestForm"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "tags": [
-                    "data"
-                ],
-                "parameters": [
-                    {
-                        "name": "parentUnid",
-                        "description": "UNID of an existing document, to make this a response document",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "in": "query"
-                    },
-                    {
-                        "examples": {
-                            "revisionSample": {
-                                "value": "26372571825596dc0db73d0eacf1eacb"
-                            }
-                        },
-                        "name": "revision",
-                        "description": "This field records the current revision version of document. It's a 32-character hex-encoded string of date. \n\nIf db config \"requireRevisionToUpdate\" is enabled, then revision is required when update document and only update document when revision version is right.",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/DominoDocument"
-                                },
-                                "examples": {
-                                    "SampleUpdateDocument": {
-                                        "value": {
-                                            "@meta": {
-                                                "noteid": 44026,
-                                                "unid": "1C62D55D75387684482588DA001F4428",
-                                                "created": "2022-10-13T13:41:30.64+08:00",
-                                                "lastmodified": "2022-10-13T13:41:30.68+08:00",
-                                                "lastaccessed": "2022-10-13T13:41:30.68+08:00",
-                                                "lastmodifiedinfile": "2022-10-13T13:41:30.69+08:00",
-                                                "addedtofile": "2022-10-13T13:41:30.68+08:00",
-                                                "noteclass": [
-                                                    "DATA",
-                                                    "DOCUMENT"
-                                                ],
-                                                "unread": true,
-                                                "revision": "00000001001F442C482588DA",
-                                                "size": 570
-                                            },
-                                            "Form": "Customer",
-                                            "Color": "Red",
-                                            "email": "gbranthwaite0@nba.com",
-                                            "first_name": "George",
-                                            "gender": "Male",
-                                            "ip_address": "91.254.204.27",
-                                            "last_name": "Branthwaite",
-                                            "Pet": "Black-capped chickadee"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Successful mode operation"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequest"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403Forbidden"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500InternalServerError"
-                    },
-                    "501": {
-                        "$ref": "#/components/responses/501NotImplemented"
-                    }
-                },
-                "security": [
-                    {
-                        "jwt": [
-                        ]
-                    }
-                ],
-                "operationId": "updateDocument",
-                "summary": "Perform an update on the document at the relevant mode",
-                "description": "Perform an update on the document at the relevant mode",
-                "x-keep-version": 1
-            },
-            "delete": {
-                "tags": [
-                    "data"
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/StatusMessage"
-                                },
-                                "examples": {
-                                    "success": {
-                                        "value": {
-                                            "status": "OK",
-                                            "statusCode": 200,
-                                            "message": "deletion complete",
-                                            "unid": "61CCE871E79E8DDB8025852F004DFF2D"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Returns data from the document"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403Forbidden"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500InternalServerError"
-                    },
-                    "501": {
-                        "$ref": "#/components/responses/501NotImplemented"
-                    }
-                },
-                "security": [
-                    {
-                        "jwt": [
-                        ]
-                    }
-                ],
-                "operationId": "deleteDocument",
-                "summary": "Delete the given document",
-                "description": "Delete the given document",
-                "x-keep-version": 1
-            },
-            "patch": {
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/DocumentSimpleRequest"
-                            }
-                        }
-                    },
-                    "required": true
-                },
-                "tags": [
-                    "data"
-                ],
-                "parameters": [
-                    {
-                        "name": "parentUnid",
-                        "description": "UNID of an existing document, to make this a response document",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "in": "query"
-                    },
-                    {
-                        "examples": {
-                            "revisionSample": {
-                                "value": "26372571825596dc0db73d0eacf1eacb"
-                            }
-                        },
-                        "name": "revision",
-                        "description": "This field records the current revision version of document. It's a 32-character hex-encoded string of date. \n\nIf db config \"requireRevisionToUpdate\" is enabled, then revision is required when update document and only update document when revision version is right.",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/DominoDocument"
-                                },
-                                "examples": {
-                                    "SampleUpdateDocument": {
-                                        "value": {
-                                            "@meta": {
-                                                "noteid": 44026,
-                                                "unid": "1C62D55D75387684482588DA001F4428",
-                                                "created": "2022-10-13T13:41:30.64+08:00",
-                                                "lastmodified": "2022-10-13T13:41:30.68+08:00",
-                                                "lastaccessed": "2022-10-13T13:41:30.68+08:00",
-                                                "lastmodifiedinfile": "2022-10-13T13:41:30.69+08:00",
-                                                "addedtofile": "2022-10-13T13:41:30.68+08:00",
-                                                "noteclass": [
-                                                    "DATA",
-                                                    "DOCUMENT"
-                                                ],
-                                                "unread": true,
-                                                "revision": "00000001001F442C482588DA",
-                                                "size": 570
-                                            },
-                                            "Form": "Customer",
-                                            "Color": "Red",
-                                            "email": "gbranthwaite0@nba.com",
-                                            "first_name": "George",
-                                            "gender": "Male",
-                                            "ip_address": "91.254.204.27",
-                                            "last_name": "Branthwaite",
-                                            "Pet": "Black-capped chickadee"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Successful mode operation"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequest"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403Forbidden"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500InternalServerError"
-                    },
-                    "501": {
-                        "$ref": "#/components/responses/501NotImplemented"
-                    }
-                },
-                "security": [
-                    {
-                        "jwt": [
-                        ]
-                    }
-                ],
-                "operationId": "patchDocument",
-                "description": "Provide a JSON structure that is a subset of the document items.\nitems not mentioned stay untouched, items with null values are removed",
-                "x-keep-version": 1
-            },
-            "parameters": [
-                {
-                    "examples": {
-                        "CustomApp": {
-                            "value": "customcontacts"
-                        },
-                        "Directory": {
-                            "value": "dominodirectory"
-                        }
-                    },
-                    "name": "dataSource",
-                    "description": "Scope name",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "query",
-                    "required": true
-                },
-                {
-                    "examples": {
-                        "sample": {
-                            "value": "94CA3B3B5E035D6048258471003639C6"
-                        }
-                    },
-                    "name": "unid",
-                    "description": "Universal Id of the document to be acted upon",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "path",
-                    "required": true
-                },
-                {
-                    "examples": {
-                        "defaultValue": {
-                            "value": "default"
-                        },
-                        "ForApprover": {
-                            "value": "approver"
-                        }
-                    },
-                    "name": "mode",
-                    "description": "mode to perform the document access in. Defaults to 'default' if missing. All lowercase, no spaces, letters and numbers only",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "query",
-                    "required": false
-                },
-                {
-                    "examples": {
-                        "RichTextAsMime": {
-                            "value": "mime"
-                        }
-                    },
-                    "name": "richTextAs",
-                    "description": "The format RichText fields will be returned.  The default if unspecified is mime.",
-                    "schema": {
-                        "$ref": "#/components/schemas/RichTextRepresentation"
-                    },
-                    "in": "query"
                 }
             ]
         },
@@ -7811,6 +7325,14 @@
                         "$ref": "#/components/schemas/RichTextRepresentation"
                     },
                     "in": "query"
+                },
+                {
+                    "name": "distinctDocuments",
+                    "description": "Determines whether, when documents=true, only distinct documents should be retrieved if they exist multiple times in the list.",
+                    "schema": {
+                        "type": "boolean"
+                    },
+                    "in": "query"
                 }
             ]
         },
@@ -7872,6 +7394,588 @@
                 "operationId": "fetchOdataList",
                 "summary": "Display scopes that have enabled/created Odata as mode in any of its form in JSONObject.,",
                 "description": "Retrieve all of the Domino Rest API Database/Scopes that supports Odata in any of its forms along with important Odata details such as url and meta as JSONObject.,",
+                "x-keep-version": 1
+            }
+        },
+        "/document/{unid}": {
+            "summary": "Actions on a document at a specific mode",
+            "description": "Update access to a document will typically restrict which fields on the document can be changed.\n\nModes are used to define statuses for a document, and will a definition identifying which fields can be seen and changed. A patch request that includes fields outside those restrictions will throw a 400 error (bad request), specifying which fields are illegal or missing.",
+            "get": {
+                "tags": [
+                    "data"
+                ],
+                "parameters": [
+                    {
+                        "examples": {
+                            "CustomApp": {
+                                "value": "customcontacts"
+                            },
+                            "Directory": {
+                                "value": "dominodirectory"
+                            }
+                        },
+                        "name": "dataSource",
+                        "description": "Scope name",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "examples": {
+                            "compute": {
+                                "value": "true"
+                            }
+                        },
+                        "name": "computeWithForm",
+                        "description": "Should a document be computed with its form's \"Default Value\", \"Input Translation\" and \"Input Validation\" formulas before retrieval",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "in": "query"
+                    },
+                    {
+                        "name": "meta",
+                        "description": "When set to false, all metadata Json items on the top level of an object get suppressed.\nDefault is true",
+                        "schema": {
+                            "type": "boolean"
+                        },
+                        "in": "query"
+                    },
+                    {
+                        "examples": {
+                            "RichTextAsMime": {
+                                "value": "mime"
+                            }
+                        },
+                        "name": "richTextAs",
+                        "description": "The format RichText fields will be returned.  The default if unspecified is html.",
+                        "schema": {
+                            "$ref": "#/components/schemas/RichTextRepresentation"
+                        },
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DominoDocument"
+                                },
+                                "examples": {
+                                    "document": {
+                                        "value": {
+                                            "@meta": {
+                                                "noteid": 44026,
+                                                "unid": "1C62D55D75387684482588DA001F4428",
+                                                "created": "2022-10-13T13:41:30.64+08:00",
+                                                "lastmodified": "2022-10-13T13:41:30.68+08:00",
+                                                "lastaccessed": "2022-10-13T13:41:30.68+08:00",
+                                                "lastmodifiedinfile": "2022-10-13T13:41:30.69+08:00",
+                                                "addedtofile": "2022-10-13T13:41:30.68+08:00",
+                                                "noteclass": [
+                                                    "DATA",
+                                                    "DOCUMENT"
+                                                ],
+                                                "unread": true,
+                                                "revision": "00000001001F442C482588DA",
+                                                "size": 570
+                                            },
+                                            "Form": "Customer",
+                                            "Color": "Red",
+                                            "email": "gbranthwaite0@nba.com",
+                                            "first_name": "George",
+                                            "gender": "Male",
+                                            "ip_address": "91.254.204.27",
+                                            "last_name": "Branthwaite",
+                                            "Pet": "Black-capped chickadee"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Successful retrieval"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequest"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403Forbidden"
+                    },
+                    "406": {
+                        "$ref": "#/components/responses/406NotAcceptable"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500InternalServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "getDocument",
+                "summary": "Retrieve a given document at its appropriate mode",
+                "description": "Retrieve a given document at its appropriate mode",
+                "x-keep-version": 1
+            },
+            "put": {
+                "requestBody": {
+                    "description": "Key/value pairs of fields and their values to update. Some modes may not allow any editable fields, in which case an empty JSON object should be passed. 'Form' is required.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DocumentSimpleRequest"
+                            },
+                            "examples": {
+                                "UpdateDocument": {
+                                    "value": {
+                                        "first_name": "Madison",
+                                        "last_name": "Branthwaite",
+                                        "email": "mbranthwaite0@nba.com",
+                                        "gender": "Female",
+                                        "ip_address": "91.254.204.27",
+                                        "Color": "Puce",
+                                        "Pet": "Black-capped chickadee",
+                                        "Form": "TestForm"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "data"
+                ],
+                "parameters": [
+                    {
+                        "name": "parentUnid",
+                        "description": "UNID of an existing document, to make this a response document",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query"
+                    },
+                    {
+                        "examples": {
+                            "revisionSample": {
+                                "value": "26372571825596dc0db73d0eacf1eacb"
+                            }
+                        },
+                        "name": "revision",
+                        "description": "This field records the current revision version of document. It's a 32-character hex-encoded string of date. \n\nIf db config \"requireRevisionToUpdate\" is enabled, then revision is required when update document and only update document when revision version is right.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DominoDocument"
+                                },
+                                "examples": {
+                                    "SampleUpdateDocument": {
+                                        "value": {
+                                            "@meta": {
+                                                "noteid": 44026,
+                                                "unid": "1C62D55D75387684482588DA001F4428",
+                                                "created": "2022-10-13T13:41:30.64+08:00",
+                                                "lastmodified": "2022-10-13T13:41:30.68+08:00",
+                                                "lastaccessed": "2022-10-13T13:41:30.68+08:00",
+                                                "lastmodifiedinfile": "2022-10-13T13:41:30.69+08:00",
+                                                "addedtofile": "2022-10-13T13:41:30.68+08:00",
+                                                "noteclass": [
+                                                    "DATA",
+                                                    "DOCUMENT"
+                                                ],
+                                                "unread": true,
+                                                "revision": "00000001001F442C482588DA",
+                                                "size": 570
+                                            },
+                                            "Form": "Customer",
+                                            "Color": "Red",
+                                            "email": "gbranthwaite0@nba.com",
+                                            "first_name": "George",
+                                            "gender": "Male",
+                                            "ip_address": "91.254.204.27",
+                                            "last_name": "Branthwaite",
+                                            "Pet": "Black-capped chickadee"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Successful mode operation"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequest"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403Forbidden"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500InternalServerError"
+                    },
+                    "501": {
+                        "$ref": "#/components/responses/501NotImplemented"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "updateDocument",
+                "summary": "Perform an update on the document at the relevant mode",
+                "description": "Perform an update on the document at the relevant mode",
+                "x-keep-version": 1
+            },
+            "delete": {
+                "tags": [
+                    "data"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/StatusMessage"
+                                },
+                                "examples": {
+                                    "success": {
+                                        "value": {
+                                            "status": "OK",
+                                            "statusCode": 200,
+                                            "message": "deletion complete",
+                                            "unid": "61CCE871E79E8DDB8025852F004DFF2D"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Returns data from the document"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403Forbidden"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500InternalServerError"
+                    },
+                    "501": {
+                        "$ref": "#/components/responses/501NotImplemented"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "deleteDocument",
+                "summary": "Delete the given document",
+                "description": "Delete the given document",
+                "x-keep-version": 1
+            },
+            "patch": {
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DocumentSimpleRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "tags": [
+                    "data"
+                ],
+                "parameters": [
+                    {
+                        "name": "parentUnid",
+                        "description": "UNID of an existing document, to make this a response document",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query"
+                    },
+                    {
+                        "examples": {
+                            "revisionSample": {
+                                "value": "26372571825596dc0db73d0eacf1eacb"
+                            }
+                        },
+                        "name": "revision",
+                        "description": "This field records the current revision version of document. It's a 32-character hex-encoded string of date. \n\nIf db config \"requireRevisionToUpdate\" is enabled, then revision is required when update document and only update document when revision version is right.",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DominoDocument"
+                                },
+                                "examples": {
+                                    "SampleUpdateDocument": {
+                                        "value": {
+                                            "@meta": {
+                                                "noteid": 44026,
+                                                "unid": "1C62D55D75387684482588DA001F4428",
+                                                "created": "2022-10-13T13:41:30.64+08:00",
+                                                "lastmodified": "2022-10-13T13:41:30.68+08:00",
+                                                "lastaccessed": "2022-10-13T13:41:30.68+08:00",
+                                                "lastmodifiedinfile": "2022-10-13T13:41:30.69+08:00",
+                                                "addedtofile": "2022-10-13T13:41:30.68+08:00",
+                                                "noteclass": [
+                                                    "DATA",
+                                                    "DOCUMENT"
+                                                ],
+                                                "unread": true,
+                                                "revision": "00000001001F442C482588DA",
+                                                "size": 570
+                                            },
+                                            "Form": "Customer",
+                                            "Color": "Red",
+                                            "email": "gbranthwaite0@nba.com",
+                                            "first_name": "George",
+                                            "gender": "Male",
+                                            "ip_address": "91.254.204.27",
+                                            "last_name": "Branthwaite",
+                                            "Pet": "Black-capped chickadee"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Successful mode operation"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequest"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403Forbidden"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500InternalServerError"
+                    },
+                    "501": {
+                        "$ref": "#/components/responses/501NotImplemented"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "patchDocument",
+                "summary": "Perform a document update on only the fields you specify in the request.",
+                "description": "Provide a JSON structure that is a subset of the document items.\nitems not mentioned stay untouched, items with null values are removed",
+                "x-keep-version": 1
+            },
+            "parameters": [
+                {
+                    "examples": {
+                        "CustomApp": {
+                            "value": "customcontacts"
+                        },
+                        "Directory": {
+                            "value": "dominodirectory"
+                        }
+                    },
+                    "name": "dataSource",
+                    "description": "Scope name",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": true
+                },
+                {
+                    "examples": {
+                        "sample": {
+                            "value": "94CA3B3B5E035D6048258471003639C6"
+                        }
+                    },
+                    "name": "unid",
+                    "description": "Universal Id of the document to be acted upon",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
+                },
+                {
+                    "examples": {
+                        "defaultValue": {
+                            "value": "default"
+                        },
+                        "ForApprover": {
+                            "value": "approver"
+                        }
+                    },
+                    "name": "mode",
+                    "description": "mode to perform the document access in. Defaults to 'default' if missing. All lowercase, no spaces, letters and numbers only",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": false
+                },
+                {
+                    "examples": {
+                        "RichTextAsMime": {
+                            "value": "mime"
+                        }
+                    },
+                    "name": "richTextAs",
+                    "description": "The format RichText fields will be returned.  The default if unspecified is mime.",
+                    "schema": {
+                        "$ref": "#/components/schemas/RichTextRepresentation"
+                    },
+                    "in": "query"
+                }
+            ]
+        },
+        "/docmeta/{unid}": {
+            "summary": "Retrieves document meta data including the form name",
+            "description": "Returns a document's form, creation date, update date, unid, nodeid. Mainly used in Foundry",
+            "get": {
+                "tags": [
+                    "data"
+                ],
+                "parameters": [
+                    {
+                        "examples": {
+                            "CustomApp": {
+                                "value": "customcontacts"
+                            },
+                            "Directory": {
+                                "value": "dominodirectory"
+                            }
+                        },
+                        "name": "dataSource",
+                        "description": "Scope name",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentMeta"
+                                }
+                            }
+                        },
+                        "description": "Successful retrieval"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequest"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403Forbidden"
+                    },
+                    "406": {
+                        "$ref": "#/components/responses/406NotAcceptable"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500InternalServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "getDocumentMetadata",
+                "summary": "Retrieves document meta data including the form name",
+                "description": "Retrieves document meta data including the form name",
+                "x-keep-version": 1
+            },
+            "parameters": [
+                {
+                    "examples": {
+                        "CustomApp": {
+                            "value": "customcontacts"
+                        },
+                        "Directory": {
+                            "value": "dominodirectory"
+                        }
+                    },
+                    "name": "dataSource",
+                    "description": "Scope name",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": true
+                },
+                {
+                    "examples": {
+                        "sample": {
+                            "value": "94CA3B3B5E035D6048258471003639C6"
+                        }
+                    },
+                    "name": "unid",
+                    "description": "Universal Id of the document to be acted upon",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/apps": {
+            "summary": "Short list of OAuth applications",
+            "description": "Only Application Name/client_name, description, icon/logo_uri, Application URL/client_uri to be shown to be able to render the Domino REST API landing page",
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/AppInfo"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "List of active apps"
+                    }
+                },
+                "security": [
+                    {
+
+                    }
+                ],
+                "operationId": "fetchApps",
+                "summary": "Get the list of configured OAuth applications",
+                "description": "Return Application Name/client_name, Description, Icon/logo_URI, Application URL/client_uri of active OAuth applications",
                 "x-keep-version": 1
             }
         }
@@ -8212,6 +8316,10 @@
                     "isEditable": {
                         "description": "Could the user who retrieved a document update it",
                         "type": "boolean"
+                    },
+                    "Form": {
+                        "description": "Value of form item of a given document",
+                        "type": "string"
                     }
                 },
                 "example": {
@@ -8361,39 +8469,6 @@
                     "leeway": 5,
                     "expSeconds": 21600,
                     "issueDate": "2021-04-01T01:32:34+08:00"
-                }
-            },
-            "BasicAuthForOauthFlow": {
-                "title": "Root Type for BasicAuthForOauthFlow",
-                "description": "API way to get a token for Domino IdP login",
-                "required": [
-                    "password",
-                    "username",
-                    "scopes"
-                ],
-                "type": "object",
-                "properties": {
-                    "password": {
-                        "format": "password",
-                        "description": "Password, not written on a Post-it",
-                        "type": "string"
-                    },
-                    "username": {
-                        "description": "Who you are or your eMail",
-                        "type": "string"
-                    },
-                    "scopes": {
-                        "description": "mandatory scopes value of 'oauth'\n",
-                        "enum": [
-                            "oauth"
-                        ],
-                        "type": "string"
-                    }
-                },
-                "example": {
-                    "password": "supersecret",
-                    "username": "FirstName LastName",
-                    "scopes": "oauth"
                 }
             },
             "BasicAuthRequest": {
@@ -8903,7 +8978,7 @@
                         "description": "Column information with at least title",
                         "type": "array",
                         "items": {
-                            "type": "object"
+                            "$ref": "#/components/schemas/ListDesignColumn"
                         }
                     }
                 },
@@ -9316,6 +9391,84 @@
                 "type": "object",
                 "example": {
 
+                }
+            },
+            "BasicAuthForOauthFlow": {
+                "title": "Root Type for BasicAuthForOauthFlow",
+                "description": "API way to get a token for Domino IdP login",
+                "required": [
+                    "password",
+                    "username",
+                    "scope"
+                ],
+                "type": "object",
+                "properties": {
+                    "password": {
+                        "format": "password",
+                        "description": "Password, not written on a Post-it",
+                        "type": "string"
+                    },
+                    "username": {
+                        "description": "Who you are or your eMail",
+                        "type": "string"
+                    },
+                    "scope": {
+                        "description": "mandatory scope value of 'oauth'\n",
+                        "enum": [
+                            "oauth"
+                        ],
+                        "type": "string"
+                    }
+                },
+                "example": {
+                    "password": "supersecret",
+                    "username": "FirstName LastName",
+                    "scope": "oauth"
+                }
+            },
+            "ListDesignColumn": {
+                "title": "Root Type for ListDesignColumn",
+                "description": "Describes a column within a view or folder definition",
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "$4"
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "User Name"
+                    },
+                    "position": {
+                        "format": "int32",
+                        "type": "integer",
+                        "example": "1"
+                    },
+                    "sorted": {
+                        "type": "boolean"
+                    },
+                    "directory": {
+                        "type": "string"
+                    },
+                    "categorized": {
+                        "type": "boolean"
+                    },
+                    "resort-asc": {
+                        "type": "boolean"
+                    },
+                    "resort-desc": {
+                        "type": "boolean"
+                    }
+                },
+                "example": {
+                    "name": "$4",
+                    "title": "User Name",
+                    "position": 1,
+                    "sorted": true,
+                    "directory": "ascending",
+                    "categorized": true,
+                    "resort-asc": true,
+                    "resort-desc": true
                 }
             },
             "ViewInfo": {
