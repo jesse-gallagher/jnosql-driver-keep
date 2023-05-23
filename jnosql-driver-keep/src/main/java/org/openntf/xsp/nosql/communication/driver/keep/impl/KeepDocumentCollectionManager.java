@@ -120,7 +120,7 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
       try(DataApi api = getDataApi()) {
         Map<String, Object> doc = entityConverter.convertNoSQLEntity(entity, true, mapping);
         api.updateDocument(dataSourceSupplier.get(), maybeId.get().get(String.class), doc,
-            "default", RichTextRepresentation.HTML, null, null);
+            "default", null, null, RichTextRepresentation.HTML);
         return entity;
       } catch (Exception e) {
         throw new RuntimeException(e);
@@ -201,7 +201,7 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
       }
 
       for (String unid : unids) {
-        api.deleteDocument(dataSourceSupplier.get(), unid, "default", RichTextRepresentation.MIME);
+        api.deleteDocument(dataSourceSupplier.get(), unid, "default"); //$NON-NLS-1$
       }
       // BulkUnids bulkUnids = new BulkUnids();
       // bulkUnids.setUnids(new ArrayList<>(unids));

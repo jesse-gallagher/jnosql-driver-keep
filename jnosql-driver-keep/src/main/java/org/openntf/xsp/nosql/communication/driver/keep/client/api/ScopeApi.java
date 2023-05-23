@@ -19,6 +19,7 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 import org.openntf.xsp.nosql.communication.driver.keep.client.model.KeepDBShort;
 import org.openntf.xsp.nosql.communication.driver.keep.client.model.KeepDatabase;
 import org.openntf.xsp.nosql.communication.driver.keep.client.model.KeepForm;
+import org.openntf.xsp.nosql.communication.driver.keep.client.model.ScopeAccessUserEntry;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.GET;
@@ -82,7 +83,7 @@ public interface ScopeApi  {
     @GET
     @Path("/scope/access")
     @Produces({ "application/json" })
-    Object getScopeAccess(@QueryParam("dataSource") @NotNull String dataSource) throws ApiException, ProcessingException;
+    ScopeAccessUserEntry getScopeAccess(@QueryParam("dataSource") @NotNull String dataSource) throws ApiException, ProcessingException;
 
     /**
      * Retrieves configuration for one form of a scope mapped to a database schema

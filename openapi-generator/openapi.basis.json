@@ -3410,7 +3410,7 @@
                                     "value": {
                                         "password": "{{AdminPassword}}",
                                         "username": "{{AdminName}}",
-                                        "scopes": "oauth"
+                                        "scope": "oauth"
                                     }
                                 }
                             }
@@ -3458,7 +3458,7 @@
                 ],
                 "operationId": "loginForOAuthFlow",
                 "summary": "Get JWT Session for OAuth consent screen",
-                "description": "Username, Password & scopes = \"oauth\" are required to use this endpoint",
+                "description": "Username, Password & scope = \"oauth\" are required to use this endpoint",
                 "x-keep-version": 1
             }
         },
@@ -5886,79 +5886,6 @@
                 "x-keep-version": 1
             }
         },
-        "/scope/access": {
-            "summary": "Retrieve ACCESS levels for Domino REST API configuration",
-            "description": "Operation on a Domino REST API configuration for a NSF.",
-            "get": {
-                "tags": [
-                    "scope"
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
-                        },
-                        "description": "Successful retrieval"
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/401Unauthorized"
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ErrorMessage"
-                                },
-                                "examples": {
-                                    "NotFound": {
-                                        "value": {
-                                            "status": 404,
-                                            "message": "A scope definition with that name cannot be found: testscope",
-                                            "errorId": 1112
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "No such scope"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500InternalServerError"
-                    }
-                },
-                "deprecated": false,
-                "security": [
-                    {
-                        "jwt": [
-                        ]
-                    }
-                ],
-                "operationId": "getScopeAccess",
-                "summary": "Provides information on ACCESS levels for current user",
-                "description": "Get information on ACCESS levels for current user",
-                "x-keep-version": 1
-            },
-            "parameters": [
-                {
-                    "examples": {
-                        "default": {
-                            "value": "demo"
-                        }
-                    },
-                    "name": "dataSource",
-                    "description": "Scope name",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "query",
-                    "required": true
-                }
-            ]
-        },
         "/odata/{dataSource}/{name}": {
             "summary": "Retrieve ODATA service Document",
             "description": "JSON Structure describing what a database can do",
@@ -7397,6 +7324,227 @@
                 "x-keep-version": 1
             }
         },
+        "/docmeta/{unid}": {
+            "summary": "Retrieves document meta data including the form name",
+            "description": "Returns a document's form, creation date, update date, unid, nodeid. Mainly used in Foundry",
+            "get": {
+                "tags": [
+                    "data"
+                ],
+                "parameters": [
+                    {
+                        "examples": {
+                            "CustomApp": {
+                                "value": "customcontacts"
+                            },
+                            "Directory": {
+                                "value": "dominodirectory"
+                            }
+                        },
+                        "name": "dataSource",
+                        "description": "Scope name",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DocumentMeta"
+                                }
+                            }
+                        },
+                        "description": "Successful retrieval"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400BadRequest"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403Forbidden"
+                    },
+                    "406": {
+                        "$ref": "#/components/responses/406NotAcceptable"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500InternalServerError"
+                    }
+                },
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "getDocumentMetadata",
+                "summary": "Retrieves document meta data including the form name",
+                "description": "Retrieves document meta data including the form name",
+                "x-keep-version": 1
+            },
+            "parameters": [
+                {
+                    "examples": {
+                        "CustomApp": {
+                            "value": "customcontacts"
+                        },
+                        "Directory": {
+                            "value": "dominodirectory"
+                        }
+                    },
+                    "name": "dataSource",
+                    "description": "Scope name",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": true
+                },
+                {
+                    "examples": {
+                        "sample": {
+                            "value": "94CA3B3B5E035D6048258471003639C6"
+                        }
+                    },
+                    "name": "unid",
+                    "description": "Universal Id of the document to be acted upon",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "path",
+                    "required": true
+                }
+            ]
+        },
+        "/apps": {
+            "summary": "Short list of OAuth applications",
+            "description": "Only Application Name/client_name, description, icon/logo_uri, Application URL/client_uri to be shown to be able to render the Domino REST API landing page",
+            "get": {
+                "tags": [
+                    "admin"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/AppInfo"
+                                    }
+                                }
+                            }
+                        },
+                        "description": "List of active apps"
+                    }
+                },
+                "security": [
+                    {
+
+                    }
+                ],
+                "operationId": "fetchApps",
+                "summary": "Get the list of configured OAuth applications",
+                "description": "Return Application Name/client_name, Description, Icon/logo_URI, Application URL/client_uri of active OAuth applications",
+                "x-keep-version": 1
+            }
+        },
+        "/scope/access": {
+            "summary": "Retrieve ACCESS levels for Domino REST API configuration",
+            "description": "Operation on a Domino REST API configuration for a NSF.",
+            "get": {
+                "tags": [
+                    "scope"
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ScopeAccessUserEntry"
+                                },
+                                "examples": {
+                                    "ScopeAccessFound": {
+                                        "value": {
+                                            "User": "CN=Doctor Notes/O=ProjectKeep",
+                                            "Level": "MANAGER",
+                                            "Roles": [
+                                                "[SampleRole]"
+                                            ],
+                                            "Flags": [
+                                                "CREATE_PRAGENT",
+                                                "CREATE_PRFOLDER",
+                                                "PERSON",
+                                                "CREATE_FOLDER",
+                                                "CREATE_LOTUSSCRIPT",
+                                                "PUBLICREADER",
+                                                "PUBLICWRITER"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "Successful retrieval"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401Unauthorized"
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorMessage"
+                                },
+                                "examples": {
+                                    "NotFound": {
+                                        "value": {
+                                            "status": 404,
+                                            "message": "A scope definition with that name cannot be found: testscope",
+                                            "errorId": 1112
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "description": "No such scope"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/500InternalServerError"
+                    }
+                },
+                "deprecated": false,
+                "security": [
+                    {
+                        "jwt": [
+                        ]
+                    }
+                ],
+                "operationId": "getScopeAccess",
+                "summary": "Provides information on ACCESS levels for current user",
+                "description": "Get information on ACCESS levels for current user",
+                "x-keep-version": 1
+            },
+            "parameters": [
+                {
+                    "examples": {
+                        "default": {
+                            "value": "demo"
+                        }
+                    },
+                    "name": "dataSource",
+                    "description": "Scope name",
+                    "schema": {
+                        "type": "string"
+                    },
+                    "in": "query",
+                    "required": true
+                }
+            ]
+        },
         "/document/{unid}": {
             "summary": "Actions on a document at a specific mode",
             "description": "Update access to a document will typically restrict which fields on the document can be changed.\n\nModes are used to define statuses for a document, and will a definition identifying which fields can be seen and changed. A patch request that includes fields outside those restrictions will throw a 400 error (bad request), specifying which fields are illegal or missing.",
@@ -7572,6 +7720,19 @@
                             "type": "string"
                         },
                         "in": "query"
+                    },
+                    {
+                        "examples": {
+                            "RichTextAsMime": {
+                                "value": "mime"
+                            }
+                        },
+                        "name": "richTextAs",
+                        "description": "The format RichText fields will be returned.  The default if unspecified is html.",
+                        "schema": {
+                            "$ref": "#/components/schemas/RichTextRepresentation"
+                        },
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -7720,6 +7881,19 @@
                             "type": "string"
                         },
                         "in": "query"
+                    },
+                    {
+                        "examples": {
+                            "RichTextAsMime": {
+                                "value": "mime"
+                            }
+                        },
+                        "name": "richTextAs",
+                        "description": "The format RichText fields will be returned.  The default if unspecified is html.",
+                        "schema": {
+                            "$ref": "#/components/schemas/RichTextRepresentation"
+                        },
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -7835,149 +8009,8 @@
                     },
                     "in": "query",
                     "required": false
-                },
-                {
-                    "examples": {
-                        "RichTextAsMime": {
-                            "value": "mime"
-                        }
-                    },
-                    "name": "richTextAs",
-                    "description": "The format RichText fields will be returned.  The default if unspecified is mime.",
-                    "schema": {
-                        "$ref": "#/components/schemas/RichTextRepresentation"
-                    },
-                    "in": "query"
                 }
             ]
-        },
-        "/docmeta/{unid}": {
-            "summary": "Retrieves document meta data including the form name",
-            "description": "Returns a document's form, creation date, update date, unid, nodeid. Mainly used in Foundry",
-            "get": {
-                "tags": [
-                    "data"
-                ],
-                "parameters": [
-                    {
-                        "examples": {
-                            "CustomApp": {
-                                "value": "customcontacts"
-                            },
-                            "Directory": {
-                                "value": "dominodirectory"
-                            }
-                        },
-                        "name": "dataSource",
-                        "description": "Scope name",
-                        "schema": {
-                            "type": "string"
-                        },
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/DocumentMeta"
-                                }
-                            }
-                        },
-                        "description": "Successful retrieval"
-                    },
-                    "400": {
-                        "$ref": "#/components/responses/400BadRequest"
-                    },
-                    "403": {
-                        "$ref": "#/components/responses/403Forbidden"
-                    },
-                    "406": {
-                        "$ref": "#/components/responses/406NotAcceptable"
-                    },
-                    "500": {
-                        "$ref": "#/components/responses/500InternalServerError"
-                    }
-                },
-                "security": [
-                    {
-                        "jwt": [
-                        ]
-                    }
-                ],
-                "operationId": "getDocumentMetadata",
-                "summary": "Retrieves document meta data including the form name",
-                "description": "Retrieves document meta data including the form name",
-                "x-keep-version": 1
-            },
-            "parameters": [
-                {
-                    "examples": {
-                        "CustomApp": {
-                            "value": "customcontacts"
-                        },
-                        "Directory": {
-                            "value": "dominodirectory"
-                        }
-                    },
-                    "name": "dataSource",
-                    "description": "Scope name",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "query",
-                    "required": true
-                },
-                {
-                    "examples": {
-                        "sample": {
-                            "value": "94CA3B3B5E035D6048258471003639C6"
-                        }
-                    },
-                    "name": "unid",
-                    "description": "Universal Id of the document to be acted upon",
-                    "schema": {
-                        "type": "string"
-                    },
-                    "in": "path",
-                    "required": true
-                }
-            ]
-        },
-        "/apps": {
-            "summary": "Short list of OAuth applications",
-            "description": "Only Application Name/client_name, description, icon/logo_uri, Application URL/client_uri to be shown to be able to render the Domino REST API landing page",
-            "get": {
-                "tags": [
-                    "admin"
-                ],
-                "responses": {
-                    "200": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/AppInfo"
-                                    }
-                                }
-                            }
-                        },
-                        "description": "List of active apps"
-                    }
-                },
-                "security": [
-                    {
-
-                    }
-                ],
-                "operationId": "fetchApps",
-                "summary": "Get the list of configured OAuth applications",
-                "description": "Return Application Name/client_name, Description, Icon/logo_URI, Application URL/client_uri of active OAuth applications",
-                "x-keep-version": 1
-            }
         }
     },
     "components": {
@@ -9469,6 +9502,46 @@
                     "categorized": true,
                     "resort-asc": true,
                     "resort-desc": true
+                }
+            },
+            "ScopeAccessUserEntry": {
+                "title": "Root Type for scopeAccessUserEntry",
+                "description": "Details of the current User Entry for a specific Database.",
+                "type": "object",
+                "properties": {
+                    "User": {
+                        "description": "Current user logged in",
+                        "type": "string"
+                    },
+                    "Level": {
+                        "description": "ACL Level of the current logged in user",
+                        "type": "string"
+                    },
+                    "Roles": {
+                        "description": "All of the roles of the current user logged in on the Domino REST API database",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "Flags": {
+                        "description": "Specifies what the current user are capable of doing on the Domino REST API database",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "example": {
+                    "User": "LocalDomainAdmins",
+                    "Level": "MANAGER",
+                    "Roles": [
+                        "Admin"
+                    ],
+                    "Flags": [
+                        "NODELETE",
+                        "AUTHOR_NOCREATE"
+                    ]
                 }
             },
             "ViewInfo": {

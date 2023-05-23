@@ -101,7 +101,7 @@ public interface AuthenticationApi  {
     /**
      * Get JWT Session for OAuth consent screen
      *
-     * Username, Password &amp; scopes &#x3D; \&quot;oauth\&quot; are required to use this endpoint
+     * Username, Password &amp; scope &#x3D; \&quot;oauth\&quot; are required to use this endpoint
      *
      */
     @POST

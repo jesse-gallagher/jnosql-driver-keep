@@ -147,7 +147,7 @@ public interface DataApi extends AutoCloseable {
     @DELETE
     @Path("/document/{unid}")
     @Produces({ "application/json" })
-    StatusMessage deleteDocument(@QueryParam("dataSource") @NotNull String dataSource, @PathParam("unid") String unid, @QueryParam("mode") String mode, @QueryParam("richTextAs") RichTextRepresentation richTextAs) throws ApiException, ProcessingException;
+    StatusMessage deleteDocument(@QueryParam("dataSource") @NotNull String dataSource, @PathParam("unid") String unid, @QueryParam("mode") String mode) throws ApiException, ProcessingException;
 
     /**
      * Removes an attachment
@@ -300,7 +300,7 @@ public interface DataApi extends AutoCloseable {
     @Path("/document/{unid}")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
-    Map<String, Object> patchDocument(@QueryParam("dataSource") @NotNull String dataSource, @PathParam("unid") String unid, @Valid Map<String, Object> requestBody, @QueryParam("mode") String mode, @QueryParam("richTextAs") RichTextRepresentation richTextAs, @QueryParam("parentUnid") String parentUnid, @QueryParam("revision") String revision) throws ApiException, ProcessingException;
+    Map<String, Object> patchDocument(@QueryParam("dataSource") @NotNull String dataSource, @PathParam("unid") String unid, @Valid Map<String, Object> requestBody, @QueryParam("mode") String mode, @QueryParam("parentUnid") String parentUnid, @QueryParam("revision") String revision, @QueryParam("richTextAs") RichTextRepresentation richTextAs) throws ApiException, ProcessingException;
 
     /**
      * Processes view data as pivot
@@ -335,7 +335,7 @@ public interface DataApi extends AutoCloseable {
     @Path("/document/{unid}")
     @Consumes({ "application/json" })
     @Produces({ "application/json" })
-    Map<String, Object> updateDocument(@QueryParam("dataSource") @NotNull String dataSource, @PathParam("unid") String unid, @Valid Map<String, Object> requestBody, @QueryParam("mode") String mode, @QueryParam("richTextAs") RichTextRepresentation richTextAs, @QueryParam("parentUnid") String parentUnid, @QueryParam("revision") String revision) throws ApiException, ProcessingException;
+    Map<String, Object> updateDocument(@QueryParam("dataSource") @NotNull String dataSource, @PathParam("unid") String unid, @Valid Map<String, Object> requestBody, @QueryParam("mode") String mode, @QueryParam("parentUnid") String parentUnid, @QueryParam("revision") String revision, @QueryParam("richTextAs") RichTextRepresentation richTextAs) throws ApiException, ProcessingException;
 
     /**
      * Perform an update on the document with anything that&#39;s in JSON
