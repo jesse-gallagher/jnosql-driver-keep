@@ -279,11 +279,6 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
         .build(DataApi.class);
   }
   
-  private Predicate<DocumentEntity> distinctByUnid() {
-    final Set<Object> seen = new HashSet<>();
-    return t -> seen.add(t.find(DominoConstants.FIELD_ID).get().get());
-  }
-  
   @SuppressWarnings("unchecked")
   private Stream<DocumentEntity> viewQuery(String entityName, String viewName,
       Pagination pagination, Sorts sorts,
