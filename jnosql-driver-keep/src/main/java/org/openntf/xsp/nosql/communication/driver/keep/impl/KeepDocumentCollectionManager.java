@@ -276,7 +276,8 @@ public class KeepDocumentCollectionManager extends AbstractDominoDocumentCollect
         .map(list -> {
           ViewInfo.Type type = Boolean.TRUE.equals(list.getIsFolder()) ? ViewInfo.Type.FOLDER : ViewInfo.Type.VIEW;
           String title = list.getTitle();
-          List<String> aliases = new ArrayList<>(list.getAliases());
+          List<String> aliases = list.getAliases();
+          aliases = aliases == null ? new ArrayList<>() : new ArrayList<>(aliases);
           aliases.remove(title);
           String unid = list.getUnid();
           String selectionFormula = ""; //$NON-NLS-1$
